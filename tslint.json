@@ -1,0 +1,30 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "ordered-imports": false,
+        "object-literal-sort-keys": false,
+        "new-parens": true,
+        "trailing-comma": {
+            "options": {
+                "esSpecCompliant": true,
+                "multiline": "always",
+                "singleline": "never"
+            }
+        },
+        "triple-equals": {
+            "options": [
+                "allow-null-check"
+            ]
+        },
+        "semicolon": {
+            "options": [
+                "always"
+            ]
+        }
+    },
+    "rulesDirectory": []
+}
