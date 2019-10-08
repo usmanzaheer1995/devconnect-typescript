@@ -26,7 +26,6 @@ profileRouter.get("/me", authenticate, async (req: Request, res: Response) => {
         console.error(error.message);
         res.status(500).send("Server error");
     }
-    res.send("Profile response");
 });
 
 // @route   POST api/profile
@@ -148,3 +147,78 @@ profileRouter.get("/user/:user_id",
             return res.status(400).json({ errors: [{ msg: "Server error" }] });
         }
     });
+
+// @route   DELETE api/profile
+// @desc    Delete profile, user & posts
+// @access  Private
+profileRouter.delete("/", authenticate, async (req: Request, res: Response) => {
+    const userId = (req as IGetUserAuthInfoRequest).user.id;
+    try {
+        // TODO: Remove user's posts
+
+        // Remove profile
+        await Profile.findOneAndRemove({ user: userId });
+
+        // Remove user
+        await User.findOneAndRemove({ _id: userId });
+
+        res.json({ msg: "User deleted" });
+
+    } catch (error) {
+        console.error(error.message);
+
+        // error.kind is present on the error object
+        if (error.kind === "ObjectId") {
+            return res.status(400).json({ errors: [{ msg: "Profile not found" }] });
+        }
+        return res.status(400).json({ errors: [{ msg: "Server error" }] });
+    }
+});
+
+// @route   PUT api/profile/experience
+// @desc    Add profile experience
+// @access  Private
+profileRouter.put("/experience", [
+    authenticate,
+    check("title", "Title is required").not().isEmpty(),
+    check("company", "Company is required").not().isEmpty(),
+    check("from", "From date is required").not().isEmpty(),
+], async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const userId = (req as IGetUserAuthInfoRequest).user.id;
+    const {
+        title,
+        company,
+        location,
+        from,
+        to,
+        current,
+        description,
+    } = req.body;
+
+    const newExp = {
+        title,
+        company,
+        location,
+        from,
+        to,
+        current,
+        description,
+    };
+
+    try {
+        const profile = await Profile.findOneAndUpdate(
+            { user: userId },
+            { experiences: { $push: { property: { $each: [newExp], $position: 0 } } } },
+            { new: true },
+        );
+        res.json(profile);
+    } catch (err) {
+        console.error(err.message);
+        return res.status(400).json({ errors: [{ msg: "Server error" }] });
+    }
+});
