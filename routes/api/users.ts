@@ -2,8 +2,9 @@ import { Router, Request, Response } from "express";
 import { check, validationResult } from "express-validator";
 import { url } from "gravatar";
 import { genSalt, hash } from "bcryptjs";
+import { sign } from "jsonwebtoken";
 
-import User  from "../../models/User";
+import User from "../../models/User";
 
 export const userRouter = Router();
 
@@ -21,13 +22,20 @@ userRouter.post("/register", [
         return res.status(400).json({ errors: errors.array() });
     }
 
+    const jwtSecret: string = process.env.JWT_SECRET!;
+    const jwtExpiryTime: number = parseInt(process.env.JWT_EXPIRY!, 10);
+
     const { name, email, password } = req.body;
 
     try {
+        if (!jwtSecret || !jwtExpiryTime) {
+            throw { message: "Environment variables not found" };
+        }
+
         // See if user exists
         let user = await User.findOne({ email });
         if (user) {
-            return res.status(400).json({ errors: [ { msg: "User already exists" } ] });
+            return res.status(400).json({ errors: [{ msg: "User already exists" }] });
         }
 
         // Get users gravatar
@@ -53,9 +61,26 @@ userRouter.post("/register", [
 
         // Return jsonwebtoken
 
-        res.send("User registered");
+        const payload = {
+            user: {
+                id: user.id,
+            },
+        };
+
+        sign(
+            payload,
+            jwtSecret,
+            { expiresIn: jwtExpiryTime },
+            (err, token) => {
+                if (err) {
+                    throw err;
+                }
+                res.json({ token });
+            },
+        );
     } catch (error) {
         console.error(error.message);
-        return res.status(500).send("Server error");
+        const msg = error.message || "Server error";
+        return res.status(400).json({ errors: [{ msg }] });
     }
 });
