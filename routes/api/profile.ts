@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { check, validationResult } from "express-validator";
-import { Types } from "mongoose";
+import request, { Options, Response as response, MultipartBody } from "request";
 
 import { authenticate } from "../../middleware/middleware";
 import Profile from "../../models/Profile";
@@ -213,10 +213,154 @@ profileRouter.put("/experience", [
     try {
         const profile = await Profile.findOneAndUpdate(
             { user: userId },
-            { experiences: { $push: { property: { $each: [newExp], $position: 0 } } } },
+            {
+                $push: {
+                    experiences: {
+                        $each: [newExp],
+                        $position: 0
+                    }
+                }
+            },
+            { new: true },
+        ).lean();
+        res.json(profile);
+    } catch (err) {
+        console.error(err.message);
+        return res.status(400).json({ errors: [{ msg: "Server error" }] });
+    }
+});
+
+// @route   DELETE api/profile/experience/:exp_id
+// @desc    Delete profile experience
+// @access  Private
+profileRouter.delete("/experience/:exp_id", authenticate, async (req: Request, res: Response) => {
+    const userId = (req as IGetUserAuthInfoRequest).user.id;
+    try {
+        const profile = await Profile.findOneAndUpdate(
+            { user: userId },
+            { $pull: { "experiences": { _id: req.params.exp_id } } },
             { new: true },
         );
+
         res.json(profile);
+    } catch (err) {
+        console.error(err.message);
+        if (err.kind === "ObjectId") {
+            return res.status(400).json({ errors: [{ msg: "Experience not found" }] });
+        }
+        return res.status(400).json({ errors: [{ msg: "Server error" }] });
+    }
+});
+
+// @route   PUT api/profile/education
+// @desc    Add profile education
+// @access  Private
+profileRouter.put("/education", [
+    authenticate,
+    check("school", "School is required").not().isEmpty(),
+    check("degree", "Degree is required").not().isEmpty(),
+    check("fieldofstudy", "Field of study is required").not().isEmpty(),
+    check("from", "From date is required").not().isEmpty(),
+], async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const userId = (req as IGetUserAuthInfoRequest).user.id;
+    const {
+        school,
+        degree,
+        fieldofstudy,
+        from,
+        to,
+        current,
+        description,
+    } = req.body;
+
+    const newEdu = {
+        school,
+        degree,
+        fieldofstudy,
+        from,
+        to,
+        current,
+        description,
+    };
+
+    try {
+        const profile = await Profile.findOneAndUpdate(
+            { user: userId },
+            {
+                $push: {
+                    education: {
+                        $each: [newEdu],
+                        $position: 0
+                    }
+                }
+            },
+            { new: true },
+        ).lean();
+        res.json(profile);
+    } catch (err) {
+        console.error(err.message);
+        return res.status(400).json({ errors: [{ msg: "Server error" }] });
+    }
+});
+
+// @route   DELETE api/profile/education/:edu_id
+// @desc    Delete profile education
+// @access  Private
+profileRouter.delete("/education/:edu_id", authenticate, async (req: Request, res: Response) => {
+    const userId = (req as IGetUserAuthInfoRequest).user.id;
+    try {
+        const profile = await Profile.findOneAndUpdate(
+            { user: userId },
+            { $pull: { "education": { _id: req.params.edu_id } } },
+            { new: true },
+        );
+
+        res.json(profile);
+    } catch (err) {
+        console.error(err.message);
+        if (err.kind === "ObjectId") {
+            return res.status(400).json({ errors: [{ msg: "Experience not found" }] });
+        }
+        return res.status(400).json({ errors: [{ msg: "Server error" }] });
+    }
+});
+
+// @route   GET api/profile/github/:username
+// @desc    Get user repos from github
+// @access  Public
+profileRouter.get("/github/:username", async (req: Request, res: Response) => {
+    const githubClientId = process.env.GITHUB_CLIENT_ID;
+    const githubSecret = process.env.GITHUB_SECRET;
+    try {
+        if (!githubClientId || !githubSecret) {
+            throw { message: "Missing environment variables" };
+        }
+        const options: Options = {
+            uri: `https://api.github.com/users/${
+                req.params.username
+            }/repos?per_page=5&sort=created:asc&client_id=${
+                githubClientId
+            }&client_secret=${
+                githubSecret
+            }`,
+            method: "GET",
+            headers: { "user-agent": "node.js" },
+        };
+
+        request(options, (error, response: response, body) => {
+            if (error) {
+                throw error;
+            }
+            if (response.statusCode != 200) {
+                return res.status(404).json({ msg: "No github profile found" });
+            }
+            res.json(JSON.parse(body));
+        });
     } catch (err) {
         console.error(err.message);
         return res.status(400).json({ errors: [{ msg: "Server error" }] });
