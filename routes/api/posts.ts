@@ -103,7 +103,7 @@ postsRouter.delete("/:id", authenticate, async (req: Request, res: Response) => 
             return res.status(401).json({ errors: [{ msg: "User not authorized" }] });
         }
         await Post.findByIdAndRemove(post._id);
-        res.json({ msg: "Post removed " });
+        res.json({ msg: "Post removed" });
     } catch (err) {
         console.error(err.message);
         if (err.kind === "ObjectId") {
