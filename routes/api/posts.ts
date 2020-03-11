@@ -37,7 +37,6 @@ postsRouter.post("/", [
 
         res.json(post);
     } catch (err) {
-        console.error(err.message);
         return res.status(500).json({ errors: [{ msg: "Server error" }] });
     }
 });
@@ -62,7 +61,6 @@ postsRouter.get("/", authenticate, async (req: Request, res: Response) => {
             count,
         });
     } catch (err) {
-        console.error(err.message);
         return res.status(500).json({ errors: [{ msg: "Server error" }] });
     }
 });
@@ -78,7 +76,7 @@ postsRouter.get("/:id", authenticate, async (req: Request, res: Response) => {
         }
         res.json(post);
     } catch (err) {
-        console.error(err.message);
+        
         if (err.kind === "ObjectId") {
             return res.status(404).json({ errors: [{ msg: "Post not found" }] });
         }
@@ -105,7 +103,6 @@ postsRouter.delete("/:id", authenticate, async (req: Request, res: Response) => 
         await Post.findByIdAndRemove(post._id);
         res.json({ msg: "Post removed" });
     } catch (err) {
-        console.error(err.message);
         if (err.kind === "ObjectId") {
             return res.status(404).json({ errors: [{ msg: "Post not found" }] });
         }
@@ -129,7 +126,6 @@ postsRouter.put("/like/:id", authenticate, async (req: Request, res: Response) =
         const posts: IPostModel = await Post.findById(req.params.id).lean();
         res.json(posts.likes);
     } catch (err) {
-        console.error(err.message);
         if (err.kind === "ObjectId") {
             return res.status(404).json({ errors: [{ msg: "Post not found" }] });
         }
@@ -153,7 +149,7 @@ postsRouter.put("/unlike/:id", authenticate, async (req: Request, res: Response)
         const posts: IPostModel = await Post.findById(req.params.id).lean();
         res.json(posts.likes);
     } catch (err) {
-        console.error(err.message);
+        
         if (err.kind === "ObjectId") {
             return res.status(404).json({ errors: [{ msg: "Post not found" }] });
         }
@@ -199,7 +195,6 @@ postsRouter.post("/comment/:id", [
 
         res.json(post.comments);
     } catch (err) {
-        console.error(err.message);
         return res.status(500).json({ errors: [{ msg: "Server error" }] });
     }
 });
@@ -219,7 +214,7 @@ postsRouter.delete("/comment/:id/:comment_id", authenticate, async (req: Request
         const posts: IPostModel = await Post.findById(req.params.id).lean();
         res.json(posts.comments);
     } catch (err) {
-        console.error(err.message);
+        
         return res.status(500).json({ errors: [{ msg: "Server error" }] });
     }
 });

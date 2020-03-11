@@ -4,7 +4,8 @@ import request, { Options, Response as response } from "request";
 
 import { authenticate } from "../../middleware/middleware";
 import Profile from "../../models/Profile";
-import User from "../../models/Profile";
+import User from "../../models/User";
+import Post from "../../models/Post";
 import { IGetUserAuthInfoRequest, IProfile } from "../../interfaces/interfaces";
 
 export const profileRouter = Router();
@@ -23,7 +24,6 @@ profileRouter.get("/me", authenticate, async (req: Request, res: Response) => {
 
         res.json(profile);
     } catch (error) {
-        console.error(error.message);
         res.status(500).send("Server error");
     }
 });
@@ -97,7 +97,7 @@ profileRouter.post("/", [
         await profile.save();
         res.json(profile);
     } catch (error) {
-        console.error(error.message);
+        
         return res.status(500).json({ errors: [{ msg: "Server error" }] });
     }
 });
@@ -118,7 +118,6 @@ profileRouter.get("/", async (req: Request, res: Response) => {
             count,
         });
     } catch (error) {
-        console.error(error.message);
         return res.status(500).json({ errors: [{ msg: "Server error" }] });
     }
 });
@@ -138,8 +137,6 @@ profileRouter.get("/user/:user_id",
             }
             res.json(profile);
         } catch (error) {
-            console.error(error.message);
-
             // error.kind is present on the error object
             if (error.kind === "ObjectId") {
                 return res.status(400).json({ errors: [{ msg: "Profile not found" }] });
@@ -154,10 +151,11 @@ profileRouter.get("/user/:user_id",
 profileRouter.delete("/", authenticate, async (req: Request, res: Response) => {
     const userId = (req as IGetUserAuthInfoRequest).user.id;
     try {
-        // TODO: Remove user's posts
-
         // Remove profile
         await Profile.findOneAndRemove({ user: userId });
+
+        // Remove post
+        await Post.findOneAndRemove({ user: userId });
 
         // Remove user
         await User.findOneAndRemove({ _id: userId });
@@ -165,8 +163,6 @@ profileRouter.delete("/", authenticate, async (req: Request, res: Response) => {
         res.json({ msg: "User deleted" });
 
     } catch (error) {
-        console.error(error.message);
-
         // error.kind is present on the error object
         if (error.kind === "ObjectId") {
             return res.status(400).json({ errors: [{ msg: "Profile not found" }] });
@@ -225,7 +221,7 @@ profileRouter.put("/experience", [
         ).lean();
         res.json(profile);
     } catch (err) {
-        console.error(err.message);
+        
         return res.status(500).json({ errors: [{ msg: "Server error" }] });
     }
 });
@@ -244,7 +240,6 @@ profileRouter.delete("/experience/:exp_id", authenticate, async (req: Request, r
 
         res.json(profile);
     } catch (err) {
-        console.error(err.message);
         if (err.kind === "ObjectId") {
             return res.status(400).json({ errors: [{ msg: "Experience not found" }] });
         }
@@ -303,7 +298,7 @@ profileRouter.put("/education", [
         ).lean();
         res.json(profile);
     } catch (err) {
-        console.error(err.message);
+        
         return res.status(500).json({ errors: [{ msg: "Server error" }] });
     }
 });
@@ -322,7 +317,7 @@ profileRouter.delete("/education/:edu_id", authenticate, async (req: Request, re
 
         res.json(profile);
     } catch (err) {
-        console.error(err.message);
+        
         if (err.kind === "ObjectId") {
             return res.status(400).json({ errors: [{ msg: "Experience not found" }] });
         }
@@ -362,7 +357,7 @@ profileRouter.get("/github/:username", async (req: Request, res: Response) => {
             res.json(JSON.parse(body));
         });
     } catch (err) {
-        console.error(err.message);
+        
         return res.status(500).json({ errors: [{ msg: "Server error" }] });
     }
 });

@@ -4,16 +4,18 @@ import { IGetUserAuthInfoRequest, IDecodedToken } from "../interfaces/interfaces
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
     // Get token from header
-    const token = req.header("x-auth-token")!;
+    let token = req.header("Authorization");
 
     // Check if not token
     if (!token) {
         return res.status(401).json({ errors: [{ msg: "No token, authorization denied" }] });
     }
 
+    token = req.header("Authorization")!.replace('Bearer ', '');
+
     // verify token
     try {
-        const decoded: any = verify(token, process.env.JWT_SECRET!);
+        const decoded = verify(token, process.env.JWT_SECRET!);
 
         (req as IGetUserAuthInfoRequest).user = (decoded as IDecodedToken).user;
         next();

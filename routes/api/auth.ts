@@ -11,7 +11,7 @@ export const authRouter = Router();
 
 // @route   GET api/auth
 // @desc    Test route
-// @access  Public
+// @access  Private
 authRouter.get("/", authenticate, async (req: Request, res: Response) => {
     try {
         const user = await User.findById((req as IGetUserAuthInfoRequest).user.id).select("-password");
@@ -72,7 +72,7 @@ authRouter.post("/login", [
                 if (err) {
                     throw err;
                 }
-                res.json({ token });
+                res.json({ token, id: user._id, name: user.name, email: user.email });
             },
         );
     } catch (error) {
