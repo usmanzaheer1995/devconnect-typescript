@@ -72,7 +72,7 @@ authRouter.post("/login", [
                 if (err) {
                     throw err;
                 }
-                res.json({ token, id: user._id, name: user.name, email: user.email });
+                res.json({ token });
             },
         );
     } catch (error) {
