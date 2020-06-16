@@ -46,7 +46,7 @@ authRouter.post("/login", [
         }
 
         // See if user exists
-        const user: IUserModel = await User.findOne({ email }).lean();
+        const user: IUserModel = (await User.findOne({ email }).lean())! as IUserModel;
         if (!user) {
             return res.status(400).json({ errors: [{ msg: "Invalid Credentials" }] });
         }

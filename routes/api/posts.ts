@@ -24,7 +24,7 @@ postsRouter.post("/", [
     const userId = (req as IGetUserAuthInfoRequest).user.id;
 
     try {
-        const user: IUserModel = await User.findById(userId).select("-password").lean();
+        const user: IUserModel = await User.findById(userId).select("-password").lean() as IUserModel;
 
         const newPost = new Post({
             text: req.body.text,
@@ -89,7 +89,7 @@ postsRouter.get("/:id", authenticate, async (req: Request, res: Response) => {
 // @access  Private
 postsRouter.delete("/:id", authenticate, async (req: Request, res: Response) => {
     try {
-        const post: IPostModel = await Post.findById(req.params.id).lean();
+        const post: IPostModel = await Post.findById(req.params.id).lean() as IPostModel;
 
         if (!post) {
             return res.status(404).json({ errors: [{ msg: "Post not found" }] });
@@ -123,7 +123,7 @@ postsRouter.put("/like/:id", authenticate, async (req: Request, res: Response) =
         if (updated.nModified === 0) {
             return res.status(400).json({ errors: [{ msg: "Post already liked" }] });
         }
-        const posts: IPostModel = await Post.findById(req.params.id).lean();
+        const posts: IPostModel = await Post.findById(req.params.id).lean() as IPostModel;
         res.json(posts.likes);
     } catch (err) {
         if (err.kind === "ObjectId") {
@@ -146,7 +146,7 @@ postsRouter.put("/unlike/:id", authenticate, async (req: Request, res: Response)
         if (updated.nModified === 0) {
             return res.status(400).json({ errors: [{ msg: "Post has not yet been liked" }] });
         }
-        const posts: IPostModel = await Post.findById(req.params.id).lean();
+        const posts: IPostModel = await Post.findById(req.params.id).lean() as IPostModel;
         res.json(posts.likes);
     } catch (err) {
         
@@ -172,7 +172,7 @@ postsRouter.post("/comment/:id", [
     const userId = (req as IGetUserAuthInfoRequest).user.id;
 
     try {
-        const user: IUserModel = await User.findById(userId).select("-password").lean();
+        const user: IUserModel = await User.findById(userId).select("-password").lean() as IUserModel;
         const newComment = {
             text: req.body.text,
             name: user.name,
@@ -191,7 +191,7 @@ postsRouter.post("/comment/:id", [
                 },
             },
             { new: true },
-        ).lean();
+        ).lean() as IPostModel;
 
         res.json(post.comments);
     } catch (err) {
@@ -211,7 +211,7 @@ postsRouter.delete("/comment/:id/:comment_id", authenticate, async (req: Request
         if (updated.nModified === 0) {
             return res.status(400).json({ errors: [{ msg: "Comment not found" }] });
         }
-        const posts: IPostModel = await Post.findById(req.params.id).lean();
+        const posts: IPostModel = await Post.findById(req.params.id).lean() as IPostModel;
         res.json(posts.comments);
     } catch (err) {
         
