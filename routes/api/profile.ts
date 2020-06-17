@@ -34,7 +34,7 @@ profileRouter.get("/me", authenticate, async (req: Request, res: Response) => {
 profileRouter.post("/", [
     authenticate,
     check("status", "Status is required").not().isEmpty(),
-    check("skills", "Status is required").not().isEmpty(),
+    check("skills", "Skills are required").not().isEmpty(),
 ], async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
