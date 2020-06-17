@@ -66,7 +66,7 @@ const AddEducation = ({ addEducation }) => {
           <p><input type="checkbox" name="current" checked={current} value={current} onChange={(e) => {
             setFormData({ ...formData, current: !current, to: !toDateDisabled ? '' : to });
             toggleDisabled(!toDateDisabled);
-          }} /> {' '}Current Job</p>
+          }} /> {' '}Current</p>
         </div>
         <div className="form-group">
           <textarea name="description" cols="30" rows="5" placeholder="Program Description" value={description} onChange={(e) => onChange(e)}></textarea>

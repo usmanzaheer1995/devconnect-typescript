@@ -151,11 +151,11 @@ profileRouter.get("/user/:user_id",
 profileRouter.delete("/", authenticate, async (req: Request, res: Response) => {
     const userId = (req as IGetUserAuthInfoRequest).user.id;
     try {
+        // Remove post
+        await Post.deleteMany({ user: userId });
+
         // Remove profile
         await Profile.findOneAndRemove({ user: userId });
-
-        // Remove post
-        await Post.findOneAndRemove({ user: userId });
 
         // Remove user
         await User.findOneAndRemove({ _id: userId });
@@ -232,13 +232,12 @@ profileRouter.put("/experience", [
 profileRouter.delete("/experience/:exp_id", authenticate, async (req: Request, res: Response) => {
     const userId = (req as IGetUserAuthInfoRequest).user.id;
     try {
-        const profile = await Profile.findOneAndUpdate(
+        await Profile.findOneAndUpdate(
             { user: userId },
             { $pull: { "experiences": { _id: req.params.exp_id } } },
-            { new: true },
         );
-
-        res.json(profile);
+        const foundProfile: IProfile = (await Profile.findOne({ user: userId }).lean())! as any;
+        return res.json(foundProfile);
     } catch (err) {
         if (err.kind === "ObjectId") {
             return res.status(400).json({ errors: [{ msg: "Experience not found" }] });
@@ -309,13 +308,13 @@ profileRouter.put("/education", [
 profileRouter.delete("/education/:edu_id", authenticate, async (req: Request, res: Response) => {
     const userId = (req as IGetUserAuthInfoRequest).user.id;
     try {
-        const profile = await Profile.findOneAndUpdate(
+        await Profile.findOneAndUpdate(
             { user: userId },
             { $pull: { "education": { _id: req.params.edu_id } } },
-            { new: true },
         );
 
-        res.json(profile);
+        const foundProfile: IProfile = (await Profile.findOne({ user: userId }).lean())! as any;
+        res.json(foundProfile);
     } catch (err) {
         
         if (err.kind === "ObjectId") {
