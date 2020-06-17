@@ -69,7 +69,7 @@ const AddEducation = ({ addEducation }) => {
           }} /> {' '}Current Job</p>
         </div>
         <div className="form-group">
-          <textarea name="description" cols="30" rows="5" placeholder="Job Description" value={description} onChange={(e) => onChange(e)}></textarea>
+          <textarea name="description" cols="30" rows="5" placeholder="Program Description" value={description} onChange={(e) => onChange(e)}></textarea>
         </div>
         <input type="submit" className="btn btn-primary my-1" />
         <Link className="btn my-1" to="/dashboard">Go Back</Link>
