@@ -70,7 +70,7 @@ postsRouter.get("/", authenticate, async (req: Request, res: Response) => {
 // @access  Private
 postsRouter.get("/:id", authenticate, async (req: Request, res: Response) => {
     try {
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.id).lean();
         if (!post) {
             return res.status(404).json({ errors: [{ msg: "Post not found" }] });
         }
