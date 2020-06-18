@@ -1,13 +1,14 @@
 import express, { Application, urlencoded, json } from "express";
 import { NextFunction, Request, Response } from "express";
-import { config } from "dotenv";
+import { resolve } from 'path';
 
+import { config } from "dotenv";
 import router from "./routes/routes";
 
 if (process.env.NODE_ENV === 'testing') {
   config({ path: './config/.test.env' });
 
-} else {
+} else if (process.env.NODE_ENV === 'development') {
   config({ path: './config/.env' });
 }
 
@@ -21,5 +22,14 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use("/api", router);
+
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder
+  app.use(express.static('client/build'));
+
+  app.get('*', (req: Request, res: Response) => {
+    res.sendFile(resolve(__dirname, 'client', 'build', 'index.html'))
+  });
+}
 
 export { app as default };
