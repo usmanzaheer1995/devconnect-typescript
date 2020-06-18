@@ -25,7 +25,7 @@ app.use("/api", router);
 
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
-  router.use(express.static('client/build'));
+  app.use(express.static('client/build'));
 
   router.get('*', (req: Request, res: Response) => {
     res.sendFile(resolve(__dirname, 'client', 'build', 'index.html'));
