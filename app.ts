@@ -1,6 +1,6 @@
 import express, { Application, urlencoded, json } from "express";
 import { NextFunction, Request, Response } from "express";
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 
 import { config } from "dotenv";
 import router from "./routes/routes";
@@ -27,8 +27,8 @@ if (process.env.NODE_ENV === 'production') {
   // Set static folder
   app.use(express.static('client/build'));
 
-  router.get('*', (req: Request, res: Response) => {
-    res.sendFile(resolve(__dirname, 'client', 'build', 'index.html'));
+  app.get('/*', (req: Request, res: Response) => {
+    res.sendFile(join(__dirname, 'client', 'build', 'index.html'));
   });
 }
 
