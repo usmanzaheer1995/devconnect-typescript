@@ -41,7 +41,7 @@ const EditProfile = ({ profile: { profile, loading }, createProfile, getCurrentP
         profileData.skills = profileData.skills.join(',');
       setFormData(profileData);
     }
-  }, [loading, profile]);
+  }, [getCurrentProfile, loading, profile]);
 
   const {
     company,
