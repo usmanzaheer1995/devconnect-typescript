@@ -1,6 +1,7 @@
 import express, { Application, urlencoded, json } from "express";
 import { NextFunction, Request, Response } from "express";
 import { resolve, join } from 'path';
+import { authRouter, postsRouter, profileRouter, userRouter } from "./routes/api/api";
 
 import { config } from "dotenv";
 import router from "./routes/routes";
@@ -21,13 +22,18 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(500).send('Something went wrong!!');
 });
 
-app.use("/api", router);
+// Define Routes
+// app.use("/api", router);
+app.use('/api/users', authRouter);
+app.use('/api/auth', postsRouter);
+app.use('/api/profile', profileRouter);
+app.use('/api/posts', userRouter);
 
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
   app.use(express.static('client/build'));
 
-  app.get('/*', (req: Request, res: Response) => {
+  app.get('*', (req: Request, res: Response) => {
     res.sendFile(join(__dirname, 'client', 'build', 'index.html'));
   });
 }
