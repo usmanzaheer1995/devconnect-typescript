@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "build": "tsc -p .",
-    "server": "nodemon server.ts",
+    "server": "env NODE_ENV=development nodemon server.ts",
     "install-client": "npm install --prefix client",
     "client": "npm start --prefix client",
     "dev": "env NODE_ENV=development concurrently \"npm run server\" \"npm run client\"",
