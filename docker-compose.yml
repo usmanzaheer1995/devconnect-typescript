@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - ${HOME}/mongo-data:/data/db
+    networks:
+      - devconnect-typescript
+
+  dev-server:
+    depends_on:
+      - mongodb
+    build: 
+      context: ./
+      target: dev-server
+    environment:
+      NODE_ENV: development
+    ports:
+      - 5000
+    networks:
+      - devconnect-typescript
+    volumes:
+      - .:/usr/src/app
+
+  dev-client:
+    depends_on:
+      - dev-server
+    build: 
+      context: ./
+      target: dev-client
+    ports:
+      - 3000
+    networks:
+      - devconnect-typescript
+    volumes:
+      - .:/usr/src/app/client
+
+networks:
+  devconnect-typescript:

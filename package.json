@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "build": "tsc -p .",
-    "server": "env NODE_ENV=development nodemon server.ts",
+    "server": "env NODE_ENV=development ts-node-dev --poll server.ts",
     "install-client": "npm install --prefix client",
     "client": "npm start --prefix client",
     "dev": "env NODE_ENV=development concurrently \"npm run server\" \"npm run client\"",
@@ -43,6 +43,7 @@
     "nodemon": "^1.19.2",
     "ts-jest": "^25.2.1",
     "ts-node": "^8.4.1",
+    "ts-node-dev": "^1.0.0-pre.56",
     "tslint": "^5.20.0",
     "typescript": "^3.8.3"
   }

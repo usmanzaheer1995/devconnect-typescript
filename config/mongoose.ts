@@ -1,6 +1,6 @@
 import { connect } from "mongoose";
 
-export default async (mongoDbUri: string) => {
+const connectToDB = async (mongoDbUri: string) => {
     try {
         await connect(
             mongoDbUri,
@@ -16,3 +16,5 @@ export default async (mongoDbUri: string) => {
         throw error;
     }
 };
+
+export default connectToDB;
